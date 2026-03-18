@@ -1,4 +1,5 @@
 import 'package:customer_app/ui/cart/cart_more.dart';
+import 'package:customer_app/ui/checkout/checkout.dart';
 import 'package:flutter/material.dart';
 
 class CartPage extends StatefulWidget {
@@ -35,6 +36,12 @@ class _CartPageState extends State<CartPage> {
               deliveryFee: 2.99,
               serviceFee: 1.50,
             ),
+            InkWell(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutPage()));
+              },
+                child: CheckoutButton()),
+            SizedBox(height: 10,)
         
           ],
         ),

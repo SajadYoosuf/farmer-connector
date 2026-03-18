@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+///---------------------------------------appbar-------------------------------------
 Widget CartHeader(context) {
   return Container(
     height: 150,
@@ -308,5 +308,43 @@ class _SummaryCardState extends State<SummaryCard> {
           ),
         ),
       );
+  }
+}
+class CheckoutButton extends StatefulWidget {
+  const CheckoutButton({super.key});
+
+  @override
+  State<CheckoutButton> createState() => _CheckoutButtonState();
+}
+
+class _CheckoutButtonState extends State<CheckoutButton> {
+  @override
+  Widget build(BuildContext context) {
+    return  Padding(
+      padding: const EdgeInsets.only(left: 15, right: 15),
+      child: Container(
+        height: 60,
+        decoration: BoxDecoration(
+          color: Color.fromRGBO(15, 87, 0, 1),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 4,
+              color: Color.fromRGBO(0, 0, 0, 0.25),
+              offset: Offset(0, 4),
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: Center(
+          child: Text('Place order', style: TextStyle(
+            color: Color.fromRGBO(255, 255, 255, 1),
+            fontWeight: FontWeight.w500,
+            fontSize: 16,
+          ),),
+        ),
+
+      ),
+    );
   }
 }
