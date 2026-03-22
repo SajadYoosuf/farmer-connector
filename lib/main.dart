@@ -1,4 +1,5 @@
 import 'package:customer_app/ui/bott_navbar/bott_naav.dart';
+import 'package:customer_app/ui/choose_page/choose_page.dart';
 import 'package:customer_app/ui/home/home.dart';
 import 'package:customer_app/ui/login/login.dart';
 import 'package:flutter/material.dart';
