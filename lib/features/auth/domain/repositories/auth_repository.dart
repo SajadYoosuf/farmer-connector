@@ -24,5 +24,6 @@ abstract class AuthRepository {
   Future<void> signOut();
   Future<String?> getUserRole(String uid);
   Future<UserEntity?> getUserDetails(String uid);
+  Future<void> resetPassword(String email);
   Stream<firebase_auth.User?> get authStateChanges;
 }

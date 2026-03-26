@@ -23,25 +23,34 @@ class _BottomScreenState extends State<BottomScreen> {
     return  Scaffold(
         body: screens[current_index],
         bottomNavigationBar: BottomNavigationBar(
-          onTap: (num){
-            print("current index$num");
-            current_index=num;
+          currentIndex: current_index,
+          onTap: (index) {
             setState(() {
+              current_index = index;
             });
           },
-          backgroundColor: Color.fromRGBO(255, 255, 255, 1),
-          selectedItemColor: Color.fromRGBO(15, 87, 0, 1),
-          unselectedItemColor: Color.fromRGBO(149, 149, 149, 1),
-          selectedLabelStyle: TextStyle(
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
+          selectedItemColor: const Color.fromRGBO(15, 87, 0, 1),
+          unselectedItemColor: const Color.fromRGBO(149, 149, 149, 1),
+          showSelectedLabels: true,
+          showUnselectedLabels: true,
+          selectedLabelStyle: const TextStyle(
             color: Color.fromRGBO(15, 87, 0, 1),
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
           ),
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.home),label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.people_alt),label: 'Users'),
-            BottomNavigationBarItem(icon: Icon(Icons.agriculture_rounded),label: 'Farmer'),
-            BottomNavigationBarItem(icon: Icon(Icons.analytics),label: 'Analytics'),
-            BottomNavigationBarItem(icon: Icon(Icons.person),label: 'Settings'),
-          ],)
+          unselectedLabelStyle: const TextStyle(
+            fontSize: 12,
+          ),
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.people_alt_outlined), activeIcon: Icon(Icons.people_alt), label: 'Users'),
+            BottomNavigationBarItem(icon: Icon(Icons.agriculture_outlined), activeIcon: Icon(Icons.agriculture_rounded), label: 'Farmer'),
+            BottomNavigationBarItem(icon: Icon(Icons.analytics_outlined), activeIcon: Icon(Icons.analytics), label: 'Analytics'),
+            BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'Settings'),
+          ],
+        ),
     );
   }
 }

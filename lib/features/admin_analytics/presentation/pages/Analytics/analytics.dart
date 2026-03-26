@@ -2,6 +2,8 @@ import 'package:customer_app/core/widgets/common_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
+import 'package:intl/intl.dart';
+import 'dart:ui' as ui;
 
 class Analytics extends StatefulWidget {
   const Analytics({super.key});
@@ -11,13 +13,76 @@ class Analytics extends StatefulWidget {
 }
 
 class _AnalyticsState extends State<Analytics> {
+  DateTimeRange _selectedDateRange = DateTimeRange(
+    start: DateTime.now().subtract(const Duration(days: 30)),
+    end: DateTime.now(),
+  );
+
+  void _showDateFilter() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          height: 450,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Select Date Range",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: CalendarDatePicker(
+                  initialDate: _selectedDateRange.end,
+                  firstDate: DateTime(2023),
+                  lastDate: DateTime.now(),
+                  onDateChanged: (date) {
+                    setState(() {
+                      _selectedDateRange = DateTimeRange(
+                        start: date.subtract(const Duration(days: 7)),
+                        end: date,
+                      );
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                  "Note: Picking a date focuses on the 7-day window around it.",
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final dateStr =
+        "${DateFormat('MMM d').format(_selectedDateRange.start)} - ${DateFormat('MMM d, yyyy').format(_selectedDateRange.end)}";
+
     return Scaffold(
       backgroundColor: const Color(0xfff3f4f6),
       body: Column(
         children: [
-          const CommonAppBar(title: 'Sale Analytics'),
+          const CommonAppBar(title: 'Sale Analytics', showBack: false),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
@@ -25,38 +90,51 @@ class _AnalyticsState extends State<Analytics> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ─── DATE RANGE SELECTOR ───
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.calendar_today,
-                            size: 20, color: Colors.green.shade700),
-                        const SizedBox(width: 12),
-                        const Text(
-                          "Jan 1 - Feb 28, 2025",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          "Change",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                  InkWell(
+                    onTap: _showDateFilter,
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today,
+                            size: 20,
                             color: Colors.green.shade700,
                           ),
-                        ),
-                        Icon(Icons.chevron_right,
-                            size: 18, color: Colors.green.shade700),
-                      ],
+                          const SizedBox(width: 12),
+                          Text(
+                            dateStr,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            "Change",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right,
+                            size: 18,
+                            color: Colors.green.shade700,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
@@ -89,8 +167,13 @@ class _AnalyticsState extends State<Analytics> {
                             painter: _BarChartPainter(
                               data: [35, 40, 55, 70, 50, 60, 80],
                               labels: [
-                                "Jan 1", "Jan 10", "Jan 15",
-                                "Jan 20", "Jan 25", "Jan 31", "Feb 1"
+                                "Jan 1",
+                                "Jan 10",
+                                "Jan 15",
+                                "Jan 20",
+                                "Jan 25",
+                                "Jan 31",
+                                "Feb 1",
                               ],
                             ),
                           ),
@@ -213,8 +296,7 @@ class _AnalyticsState extends State<Analytics> {
 
                             if (snapshot.hasData) {
                               for (var doc in snapshot.data!.docs) {
-                                final data =
-                                    doc.data() as Map<String, dynamic>;
+                                final data = doc.data() as Map<String, dynamic>;
                                 final role = data['role'] ?? '';
                                 if (role == 'user') totalUsers++;
                                 if (role == 'farmer') totalFarmers++;
@@ -224,15 +306,25 @@ class _AnalyticsState extends State<Analytics> {
 
                             return Column(
                               children: [
-                                _overviewRow("Total Customers", totalUsers.toString()),
+                                _overviewRow(
+                                  "Total Customers",
+                                  totalUsers.toString(),
+                                ),
                                 const Divider(),
-                                _overviewRow("Total Farmers", totalFarmers.toString()),
+                                _overviewRow(
+                                  "Total Farmers",
+                                  totalFarmers.toString(),
+                                ),
                                 const Divider(),
-                                _overviewRow("Total Admins", totalAdmins.toString()),
+                                _overviewRow(
+                                  "Total Admins",
+                                  totalAdmins.toString(),
+                                ),
                                 const Divider(),
                                 _overviewRow(
                                   "Total Accounts",
-                                  (totalUsers + totalFarmers + totalAdmins).toString(),
+                                  (totalUsers + totalFarmers + totalAdmins)
+                                      .toString(),
                                 ),
                               ],
                             );
@@ -272,37 +364,40 @@ class _AnalyticsState extends State<Analytics> {
                           builder: (context, snapshot) {
                             if (!snapshot.hasData ||
                                 snapshot.data!.docs.isEmpty) {
-                              return const Text("No recent signups.",
-                                  style: TextStyle(color: Colors.grey));
+                              return const Text(
+                                "No recent signups.",
+                                style: TextStyle(color: Colors.grey),
+                              );
                             }
 
                             return Column(
                               children: snapshot.data!.docs.map((doc) {
-                                final data =
-                                    doc.data() as Map<String, dynamic>;
-                                final name = data['fullName'] ??
+                                final data = doc.data() as Map<String, dynamic>;
+                                final name =
+                                    data['fullName'] ??
                                     data['email'] ??
                                     'Unknown';
                                 final role = data['role'] ?? 'user';
 
                                 return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 6,
+                                  ),
                                   child: Row(
                                     children: [
                                       CircleAvatar(
                                         radius: 18,
-                                        backgroundColor:
-                                            const Color.fromRGBO(
-                                                156, 229, 101, 0.3),
+                                        backgroundColor: const Color.fromRGBO(
+                                          156,
+                                          229,
+                                          101,
+                                          0.3,
+                                        ),
                                         child: Text(
-                                          name
-                                              .toString()[0]
-                                              .toUpperCase(),
+                                          name.toString()[0].toUpperCase(),
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
-                                            color: Color.fromRGBO(
-                                                15, 87, 0, 1),
+                                            color: Color.fromRGBO(15, 87, 0, 1),
                                           ),
                                         ),
                                       ),
@@ -318,13 +413,16 @@ class _AnalyticsState extends State<Analytics> {
                                       ),
                                       Container(
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 4),
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: role == 'farmer'
                                               ? Colors.green.shade100
                                               : Colors.blue.shade100,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                         child: Text(
                                           role.toString().toUpperCase(),
@@ -391,9 +489,10 @@ class _AnalyticsState extends State<Analytics> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
-              style:
-                  const TextStyle(fontSize: 14, color: Colors.black87)),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
+          ),
           Text(
             value,
             style: const TextStyle(
@@ -457,7 +556,7 @@ class _BarChartPainter extends CustomPainter {
               fontWeight: FontWeight.w400,
             ),
           ),
-          textDirection: TextDirection.ltr,
+          textDirection: ui.TextDirection.ltr,
         )..layout();
 
         textPainter.paint(

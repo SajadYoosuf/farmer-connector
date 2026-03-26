@@ -32,15 +32,15 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final doc = await _firestore.collection('users').doc(uid).get();
       if (doc.exists) {
-        final data = doc.data()!;
-        return UserEntity(
-          uid: uid,
-          email: data['email'] ?? '',
-          role: data['role'] ?? 'user',
-          status: data['status'] ?? 'approved', // Defaulting for backward compatibility
-          fullName: data['fullName'],
-          extraData: data,
-        );
+          final data = doc.data() ?? {};
+          return UserEntity(
+            uid: uid,
+            email: (data['email'] as String?) ?? '',
+            role: (data['role'] as String?) ?? 'user',
+            status: (data['status'] as String?) ?? 'approved',
+            fullName: data['fullName'] as String?,
+            extraData: data,
+          );
       }
       return null;
     } catch (e) {
@@ -73,6 +73,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<void> resetPassword(String email) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      print("Reset password failed: $e");
+      rethrow;
+    }
+  }
+
+  @override
   Future<UserEntity?> signUp(String email, String password, String role, {Map<String, dynamic>? extraData}) async {
     try {
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
@@ -81,8 +91,8 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       final user = userCredential.user;
       if (user != null) {
-        // Farmers require admin approval, normal users/customers and admins are approved by default
-        final status = (role == 'farmer') ? 'pending' : 'approved';
+        // Farmers require admin approval via onboarding, normal users are approved by default
+        final status = (role == 'farmer') ? 'onboarding' : 'approved';
         
         final userData = {
           'email': user.email,

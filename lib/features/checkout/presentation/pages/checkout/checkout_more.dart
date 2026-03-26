@@ -341,7 +341,7 @@ class _PlaceOrderButtonState extends State<PlaceOrderButton> {
                 fontWeight: FontWeight.w600,
                 color: Color.fromRGBO(0, 0, 0, 1),
               ),),
-              Text('\$${widget.totalAmount.toStringAsFixed(2)}', style: TextStyle(
+              Text('₹${widget.totalAmount.toStringAsFixed(2)}', style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 20,
                 color: Color.fromRGBO(101, 255, 84, 1),

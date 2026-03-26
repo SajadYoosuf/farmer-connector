@@ -19,12 +19,13 @@ class _FarmerState extends State<Farmer> {
       backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
       body: Column(
         children: [
-          const CommonAppBar(title: 'Farmer'),
+          const CommonAppBar(title: 'Farmer', showBack: false),
           const SizedBox(height: 25),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
-              onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
+              onChanged: (value) =>
+                  setState(() => _searchQuery = value.toLowerCase()),
               decoration: InputDecoration(
                 hintText: "Search by name or email...",
                 prefixIcon: const Icon(Icons.search),
@@ -54,22 +55,29 @@ class _FarmerState extends State<Farmer> {
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(
-                    child: Text("No registered farmers yet.",
-                        style: TextStyle(color: Colors.grey, fontSize: 16)),
+                    child: Text(
+                      "No registered farmers yet.",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
                   );
                 }
 
                 final docs = snapshot.data!.docs.where((doc) {
                   final data = doc.data() as Map<String, dynamic>;
-                  final name = (data['fullName'] ?? '').toString().toLowerCase();
+                  final name = (data['fullName'] ?? '')
+                      .toString()
+                      .toLowerCase();
                   final email = (data['email'] ?? '').toString().toLowerCase();
-                  return name.contains(_searchQuery) || email.contains(_searchQuery);
+                  return name.contains(_searchQuery) ||
+                      email.contains(_searchQuery);
                 }).toList();
 
                 if (docs.isEmpty) {
                   return const Center(
-                    child: Text("No farmers match your search.",
-                        style: TextStyle(color: Colors.grey, fontSize: 16)),
+                    child: Text(
+                      "No farmers match your search.",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
                   );
                 }
 
@@ -80,7 +88,7 @@ class _FarmerState extends State<Farmer> {
                     final data = docs[index].data() as Map<String, dynamic>;
                     final name = data['fullName'] ?? data['email'] ?? 'Unknown';
                     final place = data['place'] ?? 'No location';
-                    final division = data['division'] ?? '';
+                    final Ward = data['Ward'] ?? '';
                     final mobile = data['mobile'] ?? '';
 
                     return GestureDetector(
@@ -90,7 +98,8 @@ class _FarmerState extends State<Farmer> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => FarmerDetailPage(farmerData: fullData),
+                            builder: (_) =>
+                                FarmerDetailPage(farmerData: fullData),
                           ),
                         );
                       },
@@ -109,9 +118,16 @@ class _FarmerState extends State<Farmer> {
                           children: [
                             CircleAvatar(
                               radius: 28,
-                              backgroundColor: const Color.fromRGBO(156, 229, 101, 0.3),
+                              backgroundColor: const Color.fromRGBO(
+                                156,
+                                229,
+                                101,
+                                0.3,
+                              ),
                               child: Text(
-                                name.toString().isNotEmpty ? name.toString()[0].toUpperCase() : '?',
+                                name.toString().isNotEmpty
+                                    ? name.toString()[0].toUpperCase()
+                                    : '?',
                                 style: const TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -133,12 +149,14 @@ class _FarmerState extends State<Farmer> {
                                   ),
                                   Row(
                                     children: [
-                                      const Icon(Icons.location_on,
-                                          size: 14,
-                                          color: Color.fromRGBO(77, 77, 77, 1)),
+                                      const Icon(
+                                        Icons.location_on,
+                                        size: 14,
+                                        color: Color.fromRGBO(77, 77, 77, 1),
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        '$place${division.toString().isNotEmpty ? ", Div $division" : ""}',
+                                        '$place${Ward.toString().isNotEmpty ? ", Div $Ward" : ""}',
                                         style: const TextStyle(
                                           color: Color.fromRGBO(0, 0, 0, 0.7),
                                           fontWeight: FontWeight.w400,
@@ -152,12 +170,21 @@ class _FarmerState extends State<Farmer> {
                                       padding: const EdgeInsets.only(top: 4),
                                       child: Row(
                                         children: [
-                                          const Icon(Icons.phone, size: 12, color: Colors.grey),
+                                          const Icon(
+                                            Icons.phone,
+                                            size: 12,
+                                            color: Colors.grey,
+                                          ),
                                           const SizedBox(width: 4),
                                           Text(
                                             mobile.toString(),
                                             style: const TextStyle(
-                                              color: Color.fromRGBO(0, 0, 0, 0.5),
+                                              color: Color.fromRGBO(
+                                                0,
+                                                0,
+                                                0,
+                                                0.5,
+                                              ),
                                               fontSize: 11,
                                             ),
                                           ),
@@ -168,7 +195,10 @@ class _FarmerState extends State<Farmer> {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.green.shade200,
                                 borderRadius: BorderRadius.circular(10),

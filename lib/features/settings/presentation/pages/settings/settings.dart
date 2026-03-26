@@ -1,5 +1,6 @@
 import 'package:customer_app/core/widgets/common_widget.dart';
 import 'package:customer_app/features/settings/presentation/pages/settings/settings_more.dart';
+import 'package:customer_app/features/admin_support/presentation/pages/support/support_chat.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:customer_app/features/auth/presentation/providers/auth_provider.dart';
@@ -17,12 +18,18 @@ class _SettingsState extends State<Settings> {
     return Scaffold(
       body: Column(
         children: [
-          CommonAppBar(title: 'Profile'),
+          SafeArea(
+            child: CommonAppBar(
+              title: 'Profile',
+              showBack: false,
+              // showAdminActions: true,
+              showNotification: false,
+            ),
+          ),
           SingleChildScrollView(
             child: Column(
               children: [
                 const SizedBox(height: 20),
-
                 // PROFILE IMAGE + EDIT ICON
                 Stack(
                   alignment: Alignment.bottomRight,
@@ -36,26 +43,7 @@ class _SettingsState extends State<Settings> {
                       ),
                       child: const CircleAvatar(
                         radius: 60,
-                        backgroundImage: AssetImage(
-                          'assets/admin_images/profile_img.png',
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(10),
-                          topLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(10),
-                        ),
-                        //shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.edit,
-                        color: Colors.white,
-                        size: 18,
+                        child: Icon(Icons.add_moderator_outlined),
                       ),
                     ),
                   ],
@@ -88,7 +76,19 @@ class _SettingsState extends State<Settings> {
                   ),
                   child: Column(
                     children: [
-                      menuTile(Icons.notifications_outlined, "Notifications"),
+                      menuTile(
+                        Icons.support_agent,
+                        "Users & Farmer Support",
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const AdminSupportChatPage(),
+                            ),
+                          );
+                        },
+                      ),
                       menuDivider(),
                       menuTile(
                         Icons.logout,

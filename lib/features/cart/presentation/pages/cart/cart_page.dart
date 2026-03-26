@@ -1,8 +1,10 @@
 import 'package:customer_app/features/cart/presentation/pages/cart/cart_more.dart';
-import 'package:customer_app/features/checkout/presentation/pages/checkout/checkout.dart';
+import 'package:customer_app/features/checkout/presentation/pages/checkout/address_popup.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:customer_app/features/cart/presentation/providers/cart_provider.dart';
+import 'package:customer_app/core/providers/network_provider.dart';
+import 'package:customer_app/core/widgets/network_aware_widget.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -17,8 +19,13 @@ class _CartPageState extends State<CartPage> {
     return  Scaffold(
       body: Consumer<CartProvider>(
         builder: (context, cartProvider, child) {
+          final isOnline = context.watch<NetworkProvider>().isOnline;
           final items = cartProvider.items.values.toList();
-          
+
+          if (!isOnline && items.isEmpty) {
+            return const OfflinePlaceholder();
+          }
+
           if (items.isEmpty) {
             return const Center(
               child: Column(
@@ -43,6 +50,7 @@ class _CartPageState extends State<CartPage> {
                   itemBuilder: (context, index) {
                     final item = items[index];
                     return CartItemWidget(
+                      context: context,
                       item: item,
                       onIncrement: () => cartProvider.addItem(item.product),
                       onDecrement: () => cartProvider.removeOne(item.product.id!),
@@ -57,9 +65,7 @@ class _CartPageState extends State<CartPage> {
                   total: cartProvider.totalAmount,
                 ),
                 InkWell(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const CheckoutPage()));
-                  },
+                  onTap: () => showAddressPopup(context),
                   child: const CheckoutButton(),
                 ),
                 const SizedBox(height: 20),

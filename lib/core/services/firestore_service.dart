@@ -180,6 +180,10 @@ class FirestoreService {
       'lastMessage': message.message,
       'lastTimestamp': FieldValue.serverTimestamp(),
       'participants': [message.senderId, message.receiverId],
+      'usernames': {
+        message.senderId: message.senderName,
+        message.receiverId: message.receiverName,
+      },
     }, SetOptions(merge: true));
   }
 

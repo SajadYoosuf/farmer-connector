@@ -30,16 +30,17 @@ class CartProvider extends ChangeNotifier {
   double get totalAmount => subtotal + deliveryFee + serviceFee;
 
   void addItem(ProductModel product) {
-    if (_items.containsKey(product.id)) {
+    final productId = product.id ?? 'temp_${product.name}';
+    if (_items.containsKey(productId)) {
       _items.update(
-        product.id!,
+        productId,
         (existing) => CartItem(
           product: existing.product,
           quantity: existing.quantity + 1,
         ),
       );
     } else {
-      _items[product.id!] = CartItem(product: product);
+      _items[productId] = CartItem(product: product);
     }
     notifyListeners();
   }

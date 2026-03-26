@@ -11,28 +11,19 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            BuildHeader(),
-            SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CategoryBanner(),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  TrendingSection(),
-                ],
-              ),
-            )
-        
+            BuildHeader(context),
+            const CategoryBanner(),
+            const SizedBox(height: 10),
+            const TrendingSection(),
+            const SizedBox(height: 40),
           ],
         ),
       ),
-
     );
   }
 }

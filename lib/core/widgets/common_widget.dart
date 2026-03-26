@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 
-
 ///-----------------------------------------common appbar-------------------------------------------------->>
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool showBack;
   final bool showNotification;
+  final bool showAdminActions;
 
   const CommonAppBar({
     super.key,
     required this.title,
     this.showBack = true,
-    this.showNotification = true,
+    this.showNotification = false,
+    this.showAdminActions = false,
   });
 
   @override
@@ -24,32 +25,37 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
         children: [
           SizedBox(
             height: 70,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            width: double.infinity,
+            child: Stack(
+              alignment: Alignment.center,
               children: [
                 /// ---------- BACK BUTTON ----------
-                showBack
-                    ? Padding(
-                  padding: const EdgeInsets.only(left: 12),
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xfff3f4f6),
-                        borderRadius: BorderRadius.circular(12),
+                if (showBack)
+                  Positioned(
+                    top: 20,
+                    left: 12,
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xfff3f4f6),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.black,
+                          size: 22,
+                        ),
                       ),
-                      child: const Icon(Icons.arrow_back,
-                          color: Colors.black, size: 22),
                     ),
                   ),
-                )
-                    : const SizedBox(width: 40),
 
                 /// ---------- TITLE ----------
                 Text(
                   title,
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -57,22 +63,22 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
 
-                /// ---------- NOTIFICATION BUTTON ----------
-                showNotification
-                    ? Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: const Color(0xfff3f4f6),
-                      borderRadius: BorderRadius.circular(12),
+                /// ---------- RIGHT ACTIONS ----------
+                if (showAdminActions)
+                  Positioned(
+                    right: 12,
+                    top: 20,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.people_alt_outlined, color: Colors.black, size: 24),
+                        const SizedBox(width: 12),
+                        const Icon(Icons.support_agent_outlined, color: Colors.black, size: 24),
+                      ],
                     ),
-                    child: const Icon(Icons.notifications,
-                        color: Colors.black),
-                  ),
-                )
-                    : const SizedBox(width: 40),
+                  )
+                else if (showNotification)
+                  const SizedBox.shrink(),
               ],
             ),
           ),
@@ -87,8 +93,6 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(90);
 }
-
-
 
 ///<<<<<<<<<<======================================================================================================>>>
 /// ----------------------------------card listview-----------------------------------------
@@ -214,6 +218,7 @@ class UserCard extends StatelessWidget {
     );
   }
 }
+
 ///<<<<<<<<<<=======================================================================================>>>
 ///---------------------Filter button-----------------------------
 
@@ -308,7 +313,7 @@ class _FilterButtonsState extends State<FilterButtons> {
     "status": "Status",
     "location": "Location",
     "active": "Active",
-    "deactive" : "Deactive"
+    "deactive": "Deactive",
   };
 
   void select(String type) {
@@ -328,13 +333,13 @@ class _FilterButtonsState extends State<FilterButtons> {
           border: Border.all(width: 1, color: Color.fromRGBO(92, 92, 92, 0.1)),
           boxShadow: selected
               ? [
-            BoxShadow(
-              color: Colors.green.withOpacity(0.4),
-              spreadRadius: 2,
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ]
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.4),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
               : [],
         ),
         child: Text(
@@ -363,16 +368,13 @@ class _FilterButtonsState extends State<FilterButtons> {
           String key = filterItems.keys.elementAt(index);
           String label = filterItems.values.elementAt(index);
 
-          return buildButton(
-            label,
-            selectedType == key,
-                () => select(key),
-          );
+          return buildButton(label, selectedType == key, () => select(key));
         },
       ),
     );
   }
 }
+
 ///====================================================================================================>
 ///--------------------------------------------------SearchBar--------------------------------------------->>
 Widget SearchBarContainer() {

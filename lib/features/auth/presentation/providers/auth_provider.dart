@@ -107,12 +107,13 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<String?> signUp(String email, String password, String role) async {
+  Future<String?> signUp(String email, String password, String role, {Map<String, dynamic>? extraData}) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final user = await _authRepository.signUp(email, password, role, extraData: _signupExtraData);
+      final dataToUse = extraData ?? _signupExtraData;
+      final user = await _authRepository.signUp(email, password, role, extraData: dataToUse);
       if (user != null) {
         // Log signup activity
         final name = _signupExtraData['fullName'] ?? email.split('@').first;
@@ -131,6 +132,21 @@ class AuthProvider extends ChangeNotifier {
   Future<void> signOut() async {
     await _userDocSubscription?.cancel();
     await _authRepository.signOut();
+  }
+
+  Future<String?> resetPassword(String email) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _authRepository.resetPassword(email);
+      _isLoading = false;
+      notifyListeners();
+      return null; // Return null on success
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      return e.toString(); // Return error message
+    }
   }
 
   @override

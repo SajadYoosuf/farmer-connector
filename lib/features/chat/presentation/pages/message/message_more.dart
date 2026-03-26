@@ -8,51 +8,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 Widget MessageHeader(context) {
   return Container(
     height: 160,
-    color: Color.fromRGBO(154, 238, 86, 1),
+    color: Colors.lightGreen,
     child: SafeArea(
       bottom: false,
       child: Column(
         children: [
           ///appbar section
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 35),
+            padding: const EdgeInsets.symmetric(horizontal: 120, vertical: 35),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Color.fromRGBO(232, 236, 244, 1),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: IconButton(
-                    onPressed: () {
-                    },
-                    icon: Icon(
-                      Icons.chevron_left,
-                      fontWeight: FontWeight.w600,
-                      size: 30,
-                      color: Color.fromRGBO(30, 35, 44, 1),
-                    ),
-                  ),
-                ),
                 Text(
-                  'messages',
+                  'Messages',
                   style: TextStyle(
                     color: Color.fromRGBO(0, 0, 0, 1),
                     fontWeight: FontWeight.w600,
                     fontSize: 20,
-                  ),
-                ),
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    color: Color.fromRGBO(15, 87, 0, 1),
-                  ),
-                  child: Icon(
-                    Icons.notifications,
-                    color: Color.fromRGBO(255, 255, 255, 1),
                   ),
                 ),
               ],
@@ -90,9 +62,14 @@ Widget MessageList() {
             itemCount: rooms.length,
             itemBuilder: (context, index) {
               final room = rooms[index].data() as Map<String, dynamic>;
-              final users = room['users'] as List;
-              final otherUserId = users.firstWhere((id) => id != userId, orElse: () => '');
-              final otherUserName = room['usernames']?[otherUserId] ?? 'Farmer';
+              final participants = room['participants'] as List? ?? [];
+              final otherUserId = participants.firstWhere(
+                (id) => id != userId,
+                orElse: () => '',
+              );
+              final usernames =
+                  room['usernames'] as Map<String, dynamic>? ?? {};
+              final otherUserName = usernames[otherUserId] ?? 'User';
 
               return InkWell(
                 onTap: () {
@@ -125,7 +102,12 @@ class MessageTile extends StatefulWidget {
   final String name;
   final String image;
   final String lastMessage;
-  const MessageTile({super.key, required this.name, required this.image, required this.lastMessage});
+  const MessageTile({
+    super.key,
+    required this.name,
+    required this.image,
+    required this.lastMessage,
+  });
 
   @override
   State<MessageTile> createState() => _MessageTileState();

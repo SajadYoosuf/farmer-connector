@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:customer_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:customer_app/features/auth/presentation/pages/forgot_password/forgot_password.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -154,7 +155,7 @@ class _LoginPageState extends State<LoginPage> {
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          obscure ? Icons.visibility_off : Icons.visibility,
+                          obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded,
                         ),
                         onPressed: () {
                           setState(() {
@@ -176,7 +177,14 @@ class _LoginPageState extends State<LoginPage> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPassword(),
+                        ),
+                      );
+                    },
                     child: const Text(
                       "Forgot Password ?",
                       style: TextStyle(color: Color.fromRGBO(15, 87, 0, 1),
@@ -208,12 +216,19 @@ class _LoginPageState extends State<LoginPage> {
                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Access Denied. Ensure you have Admin privileges.')));
                       }
                     },
-                    child: const Text(
-                      "Login",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
+                    child: Consumer<AuthProvider>(
+                      builder: (context, auth, child) {
+                        if (auth.isLoading) {
+                          return const CircularProgressIndicator(color: Colors.white);
+                        }
+                        return const Text(
+                          "Login",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
