@@ -11,22 +11,37 @@ class ChatProvider extends ChangeNotifier {
   List<MessageModel> get messages => _messages;
   bool get isLoading => _isLoading;
 
-  void listenToMessages(String senderId, String receiverId) {
-    final chatRoomId = _firestoreService.getChatRoomId(senderId, receiverId);
-    _firestoreService.getMessages(chatRoomId).listen((snapshot) {
-      _messages = snapshot.docs
+  Stream<List<MessageModel>> getMessages(String receiverId) {
+    // We assume current user is the one sending/receiving
+    // For a real stream, we need both IDs to get the room
+    // In ChatPage, we can use Provider to get current userId
+    // But for the stream, let's just make it easy
+    return Stream.empty(); // Placeholder, better define it in ChatPage with FirestoreService directly or fix here
+  }
+
+  // Improved stream getter
+  Stream<List<MessageModel>> getChatStream(String userId, String otherUserId) {
+    final chatRoomId = _firestoreService.getChatRoomId(userId, otherUserId);
+    return _firestoreService.getMessages(chatRoomId).map((snapshot) {
+      return snapshot.docs
           .map((doc) => MessageModel.fromMap(doc.id, doc.data() as Map<String, dynamic>))
           .toList();
-      notifyListeners();
     });
   }
 
-  Future<void> sendMessage(String senderId, String senderName, String receiverId, String messageText) async {
+  Future<void> sendMessage({
+    required String senderId,
+    required String senderName,
+    required String receiverId,
+    required String receiverName,
+    required String content,
+  }) async {
     final message = MessageModel(
       senderId: senderId,
       senderName: senderName,
       receiverId: receiverId,
-      message: messageText,
+      receiverName: receiverName,
+      message: content,
     );
     await _firestoreService.sendMessage(message);
   }

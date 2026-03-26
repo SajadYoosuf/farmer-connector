@@ -66,6 +66,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
               /// ---------------- STATS CARDS ----------------
               _buildStatsStream(),
 
+              const SizedBox(height: 20),
+
               /// ---------------- TOP FARMERS ----------------
               _buildTopFarmersHeader(),
               const SizedBox(height: 12),

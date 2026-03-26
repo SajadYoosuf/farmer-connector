@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
               } else {
                 return FarmerStatusScreen(
                    status: status,
-                   onSignOut: () async => await authProvider.signOut(),
+                   onSignOut: () { authProvider.signOut(); },
                 );
               }
             } else {

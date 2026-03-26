@@ -1,13 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:customer_app/features/chat/presentation/providers/chat_provider.dart';
+import 'package:customer_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:customer_app/core/models/message_model.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  final String farmerId;
+  final String farmerName;
+  const ChatPage({super.key, required this.farmerId, required this.farmerName});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
+  final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  void _sendMessage() {
+    if (_messageController.text.trim().isEmpty) return;
+
+    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userId = authProvider.currentUser?.uid ?? 'guest';
+
+    chatProvider.sendMessage(
+      senderId: userId,
+      senderName: authProvider.currentUser?.email ?? 'User',
+      receiverId: widget.farmerId,
+      receiverName: widget.farmerName,
+      content: _messageController.text.trim(),
+    );
+
+    _messageController.clear();
+    _scrollToBottom();
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,23 +82,23 @@ class _ChatPageState extends State<ChatPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Alfredo Lubin',
-                  style: TextStyle(
+                  widget.farmerName,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: Color.fromRGBO(0, 0, 0, 1),
                   ),
                 ),
-                Row(
+                const Row(
                   children: [
                     Icon(
                       Icons.circle,
                       color: Color.fromRGBO(88, 255, 38, 1),
                       size: 10,
                     ),
-                    SizedBox(width: 10),
+                    SizedBox(width: 5),
                     Text(
-                      'Available Now',
+                      'Online',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -95,83 +134,64 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: Column(
         children: [
-          SizedBox(height: 180),
-          Center(
-            child: const Text(
-              "Today",
-              style: TextStyle(
-                color: Color.fromRGBO(0, 0, 0, 0.72),
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-              ),
+          Expanded(
+            child: Consumer2<ChatProvider, AuthProvider>(
+              builder: (context, chatProvider, authProvider, child) {
+                final userId = authProvider.currentUser?.uid ?? 'guest';
+                return StreamBuilder<List<MessageModel>>(
+                  stream: chatProvider.getChatStream(userId, widget.farmerId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text("Start a conversation"));
+                    }
+
+                    final messages = snapshot.data!;
+                    return ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(15),
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final message = messages[index];
+                        final isMe = message.senderId == userId;
+
+                        return Align(
+                          alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 5),
+                            padding: const EdgeInsets.all(12),
+                            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+                            decoration: BoxDecoration(
+                              color: isMe ? const Color.fromRGBO(155, 235, 91, 1) : Colors.white,
+                              borderRadius: BorderRadius.only(
+                                topLeft: const Radius.circular(15),
+                                topRight: const Radius.circular(15),
+                                bottomLeft: isMe ? const Radius.circular(15) : Radius.zero,
+                                bottomRight: isMe ? Radius.zero : const Radius.circular(15),
+                              ),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 4,
+                                  offset: Offset(0, 2),
+                                )
+                              ],
+                            ),
+                            child: Text(
+                              message.message,
+                              style: TextStyle(color: isMe ? Colors.white : Colors.black87),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
             ),
           ),
-
-          const SizedBox(height: 50),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const SizedBox(width: 10),
-              const CircleAvatar(
-                radius: 18,
-                backgroundImage: AssetImage('assets/images/person.png'),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.all(12),
-                width: MediaQuery.of(context).size.width * 0.6,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    bottomRight: Radius.circular(25),
-                    topRight: Radius.circular(25),
-                    topLeft: Radius.circular(25),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      spreadRadius: 1,
-                      offset: const Offset(2, 4), // x, y
-                    ),
-                  ],
-                ),
-                child: const Text(
-                  "Madam, we have packed your product and it is ready for dispatch. Thank you for your order.",
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 50),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.6,
-                padding: const EdgeInsets.all(12),
-                margin: const EdgeInsets.only(right: 10),
-                decoration: BoxDecoration(
-                  color: Color.fromRGBO(155, 235, 91, 1),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(25),
-                    topRight: Radius.circular(25),
-                    bottomLeft: Radius.circular(25),
-                  ),
-                  border: Border.all(color: Color.fromRGBO(0, 0, 0, 0.06)),
-                ),
-                child: const Text(
-                  "ok",
-                  style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
-                ),
-              ),
-              const CircleAvatar(
-                radius: 18,
-                backgroundImage: AssetImage('assets/images/women.png'),
-              ),
-              const SizedBox(width: 10),
-            ],
-          ),
-          const Spacer(),
           // INPUT FIELD
           Container(
             padding: const EdgeInsets.all(10),
@@ -193,14 +213,15 @@ class _ChatPageState extends State<ChatPage> {
                 // TEXT FIELD
                 Expanded(
                   child: TextField(
-                    // controller: controller,
+                    controller: _messageController,
+                    onSubmitted: (_) => _sendMessage(),
                     decoration: InputDecoration(
                       hintText: "Type your message",
-                      hintStyle: TextStyle(
+                      hintStyle: const TextStyle(
                         color: Color.fromRGBO(85, 85, 85, 1),
                       ),
                       filled: true,
-                      fillColor: Color.fromRGBO(241, 245, 249, 1),
+                      fillColor: const Color.fromRGBO(241, 245, 249, 1),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 15,
                         vertical: 10,
@@ -215,13 +236,16 @@ class _ChatPageState extends State<ChatPage> {
                 const SizedBox(width: 10),
 
                 // SEND BUTTON
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Color.fromRGBO(155, 235, 91, 1),
-                    borderRadius: BorderRadius.circular(10),
+                InkWell(
+                  onTap: _sendMessage,
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color.fromRGBO(155, 235, 91, 1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.send, color: Colors.white),
                   ),
-                  child: const Icon(Icons.send, color: Colors.white),
                 ),
               ],
             ),

@@ -308,7 +308,9 @@ class _GooglepayState extends State<Googlepay> {
   }
 }
 class PlaceOrderButton extends StatefulWidget {
-  const PlaceOrderButton({super.key});
+  final double totalAmount;
+  final VoidCallback onPlaced;
+  const PlaceOrderButton({super.key, required this.totalAmount, required this.onPlaced});
 
   @override
   State<PlaceOrderButton> createState() => _PlaceOrderButtonState();
@@ -339,7 +341,7 @@ class _PlaceOrderButtonState extends State<PlaceOrderButton> {
                 fontWeight: FontWeight.w600,
                 color: Color.fromRGBO(0, 0, 0, 1),
               ),),
-              Text('\$${70.99}', style: TextStyle(
+              Text('\$${widget.totalAmount.toStringAsFixed(2)}', style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 20,
                 color: Color.fromRGBO(101, 255, 84, 1),
@@ -351,7 +353,8 @@ class _PlaceOrderButtonState extends State<PlaceOrderButton> {
         Padding(
           padding: const EdgeInsets.only(left: 20,right: 20),
           child: InkWell(
-            onTap: (){
+            onTap: () async {
+              widget.onPlaced();
               Navigator.push(context, MaterialPageRoute(builder: (context) => OrderPlacedLoadingScreen()));
             },
             child: Container(

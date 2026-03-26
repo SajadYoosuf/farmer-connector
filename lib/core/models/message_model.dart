@@ -5,6 +5,7 @@ class MessageModel {
   final String senderId;
   final String senderName;
   final String receiverId;
+  final String receiverName;
   final String message;
   final Timestamp? timestamp;
   final bool isRead;
@@ -14,6 +15,7 @@ class MessageModel {
     required this.senderId,
     required this.senderName,
     required this.receiverId,
+    required this.receiverName,
     required this.message,
     this.timestamp,
     this.isRead = false,
@@ -25,6 +27,7 @@ class MessageModel {
       senderId: map['senderId'] ?? '',
       senderName: map['senderName'] ?? '',
       receiverId: map['receiverId'] ?? '',
+      receiverName: map['receiverName'] ?? '',
       message: map['message'] ?? '',
       timestamp: map['timestamp'],
       isRead: map['isRead'] ?? false,
@@ -36,6 +39,7 @@ class MessageModel {
       'senderId': senderId,
       'senderName': senderName,
       'receiverId': receiverId,
+      'receiverName': receiverName,
       'message': message,
       'timestamp': timestamp ?? FieldValue.serverTimestamp(),
       'isRead': isRead,
