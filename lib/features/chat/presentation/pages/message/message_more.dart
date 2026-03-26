@@ -1,5 +1,9 @@
 import 'package:customer_app/features/chat/presentation/pages/message/chat/chat_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:customer_app/features/chat/presentation/providers/chat_provider.dart';
+import 'package:customer_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 Widget MessageHeader(context) {
   return Container(
@@ -61,37 +65,67 @@ Widget MessageHeader(context) {
 }
 
 Widget MessageList() {
-  return Container(
-    decoration: BoxDecoration(
-      color: Color.fromRGBO(255, 255, 255, 1),
-      borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-    ),
-    child: ListView.builder(
-      shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return
-            InkWell(
-              onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage()));
-              },
-              child: MessageTile(
-                  name: 'Alfredo Lubin',
-                  image: 'assets/images/person.png'
+  return Consumer2<ChatProvider, AuthProvider>(
+    builder: (context, chatProvider, authProvider, child) {
+      final userId = authProvider.currentUser?.uid ?? 'guest';
+      return StreamBuilder<QuerySnapshot>(
+        stream: chatProvider.getUserChatRooms(userId) as Stream<QuerySnapshot>,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Text("No messages yet"),
               ),
             );
-        }
+          }
 
-  ));
+          final rooms = snapshot.data!.docs;
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: rooms.length,
+            itemBuilder: (context, index) {
+              final room = rooms[index].data() as Map<String, dynamic>;
+              final users = room['users'] as List;
+              final otherUserId = users.firstWhere((id) => id != userId, orElse: () => '');
+              final otherUserName = room['usernames']?[otherUserId] ?? 'Farmer';
 
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatPage(
+                        farmerId: otherUserId,
+                        farmerName: otherUserName,
+                      ),
+                    ),
+                  );
+                },
+                child: MessageTile(
+                  name: otherUserName,
+                  image: 'assets/images/person.png',
+                  lastMessage: room['lastMessage'] ?? 'Click to chat',
+                ),
+              );
+            },
+          );
+        },
+      );
+    },
+  );
 }
 
 //Message tile
 class MessageTile extends StatefulWidget {
   final String name;
   final String image;
-  const MessageTile({super.key, required this.name, required this.image});
+  final String lastMessage;
+  const MessageTile({super.key, required this.name, required this.image, required this.lastMessage});
 
   @override
   State<MessageTile> createState() => _MessageTileState();
@@ -119,10 +153,16 @@ class _MessageTileState extends State<MessageTile> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           subtitle: Row(
-            children: const [
-              Icon(Icons.done_all, size: 18, color: Colors.blue),
-              SizedBox(width: 5),
-              Text("HELLO"),
+            children: [
+              const Icon(Icons.done_all, size: 18, color: Colors.blue),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(
+                  widget.lastMessage,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
         ),

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:customer_app/features/home/presentation/providers/product_provider.dart';
 import 'package:customer_app/features/cart/presentation/providers/cart_provider.dart';
-import 'package:customer_app/core/models/product_model.dart';
 
 Widget BuildHeader() {
   return Container(height: 190,
