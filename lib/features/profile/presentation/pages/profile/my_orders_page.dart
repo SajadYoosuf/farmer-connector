@@ -13,15 +13,15 @@ class MyOrdersPage extends StatefulWidget {
 }
 
 class _MyOrdersPageState extends State<MyOrdersPage> {
-  int _selectedTab = 0; // 0=Active, 1=Completed, 2=Cancelled
+  int _selectedTab = 0; // 0=Ongoing, 1=Delivered, 2=Cancelled
 
-  static const _tabs = ['Active', 'Completed', 'Cancelled'];
+  static const _tabs = ['Ongoing', 'Delivered', 'Cancelled'];
 
   // Maps tab index to Firestore status values
   List<String> _statusFilter() {
-    if (_selectedTab == 0) return ['pending', 'confirmed', 'Preparing', 'shipped'];
+    if (_selectedTab == 0) return ['pending', 'confirmed', 'preparing', 'shipped'];
     if (_selectedTab == 1) return ['delivered'];
-    return ['cancelled'];
+    return ['cancelled', 'rejected'];
   }
 
   // User-friendly label for status
@@ -38,7 +38,13 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
       case 'delivered':
         return {'label': 'Delivered', 'color': const Color(0xff0F5700), 'bg': const Color(0xffE8F5E9), 'icon': Icons.task_alt_rounded};
       case 'cancelled':
-        return {'label': 'Cancelled', 'color': Colors.red.shade700, 'bg': Colors.red.shade50, 'icon': Icons.cancel_outlined};
+      case 'rejected':
+        return {
+          'label': status.toLowerCase() == 'rejected' ? 'Rejected' : 'Cancelled',
+          'color': Colors.red.shade700,
+          'bg': Colors.red.shade50,
+          'icon': Icons.cancel_outlined
+        };
       default:
         return {'label': status, 'color': Colors.grey, 'bg': Colors.grey.shade100, 'icon': Icons.info_outline};
     }

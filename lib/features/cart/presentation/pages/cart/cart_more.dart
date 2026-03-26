@@ -55,13 +55,6 @@ Widget CartItemWidget({
           builder: (context) => ProductDetails(product: item.product),
         ),
       );
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProductDetails(product: item.product),
-        ),
-      );
     },
     child: Container(
       margin: const EdgeInsets.all(12),
@@ -214,7 +207,6 @@ Widget CartItemWidget({
   );
 }
 
-}
 
 ///----------------------------------summary card -----------------------------------------------
 
@@ -339,7 +331,7 @@ class _CheckoutButtonState extends State<CheckoutButton> {
         ),
         child: Center(
           child: Text(
-            'Proceed to checkout',
+            'Order Now',
             style: TextStyle(
               color: Color.fromRGBO(255, 255, 255, 1),
               fontWeight: FontWeight.w500,

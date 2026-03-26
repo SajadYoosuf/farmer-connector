@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customer_app/features/profile/presentation/pages/profile/edit_profile.dart';
 import 'package:customer_app/features/profile/presentation/pages/support/farmer_support_chat.dart';
 import 'package:customer_app/features/profile/presentation/pages/profile/my_orders_page.dart';
+import 'package:customer_app/features/profile/presentation/pages/profile/my_favourites_page.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -210,9 +211,14 @@ class _ProfileScreenState extends State<Profile> {
               ),
               child: Column(
                 children: [
-                  buildMenuItem(Icons.receipt_long_outlined, "My Orders", onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const MyOrdersPage()));
-                  }),
+                  if (role != 'farmer') ...[
+                    buildMenuItem(Icons.receipt_long_outlined, "My Orders", onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const MyOrdersPage()));
+                    }),
+                    buildMenuItem(Icons.favorite_border, "My Favourites", onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const MyFavouritesPage()));
+                    }),
+                  ],
                   buildMenuItem(Icons.person_outline, "Edit Profile", onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfilePage()));
                   }),

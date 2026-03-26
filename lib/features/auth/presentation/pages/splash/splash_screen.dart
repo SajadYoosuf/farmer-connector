@@ -9,7 +9,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
@@ -22,13 +23,15 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       duration: const Duration(milliseconds: 1500),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
 
     _controller.forward();
 
@@ -109,7 +112,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ),
                     ),
                   ),
-                  
+
                   // Sky Dome (Light Blue behind trees)
                   Positioned(
                     bottom: 120,
@@ -124,11 +127,31 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   ),
 
                   // Trees
-                  const Positioned(bottom: 60, left: 20, child: _TreeWidget(size: 1.1)),
-                  const Positioned(bottom: 80, left: 100, child: _TreeWidget(size: 0.6)),
-                  const Positioned(bottom: 70, right: 40, child: _TreeWidget(size: 1.3)),
-                  const Positioned(bottom: 100, right: 120, child: _TreeWidget(size: 0.5)),
-                  const Positioned(bottom: 40, left: 180, child: _TreeWidget(size: 0.8)),
+                  const Positioned(
+                    bottom: 60,
+                    left: 20,
+                    child: _TreeWidget(size: 1.1),
+                  ),
+                  const Positioned(
+                    bottom: 80,
+                    left: 100,
+                    child: _TreeWidget(size: 0.6),
+                  ),
+                  const Positioned(
+                    bottom: 70,
+                    right: 40,
+                    child: _TreeWidget(size: 1.3),
+                  ),
+                  const Positioned(
+                    bottom: 100,
+                    right: 120,
+                    child: _TreeWidget(size: 0.5),
+                  ),
+                  const Positioned(
+                    bottom: 40,
+                    left: 180,
+                    child: _TreeWidget(size: 0.8),
+                  ),
 
                   // Foreground Grass Layer
                   Positioned(
@@ -139,7 +162,9 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       height: 100,
                       decoration: const BoxDecoration(
                         color: Color(0xFF3B6B00),
-                        borderRadius: BorderRadius.vertical(top: Radius.elliptical(300, 50)),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.elliptical(300, 50),
+                        ),
                       ),
                     ),
                   ),
@@ -155,7 +180,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               child: ScaleTransition(
                 scale: _scaleAnimation,
                 child: const Text(
-                  "FrameRoot",
+                  "Farmer Connector",
                   style: TextStyle(
                     fontSize: 52,
                     fontWeight: FontWeight.w900,
@@ -229,10 +254,50 @@ class _TreeWidget extends StatelessWidget {
           Stack(
             alignment: Alignment.center,
             children: [
-              Container(width: 80, height: 80, decoration: const BoxDecoration(color: Color(0xFF8BC34A), shape: BoxShape.circle)),
-              Positioned(top: 0, left: 5, child: Container(width: 40, height: 40, decoration: const BoxDecoration(color: Color(0xFF9CCC65), shape: BoxShape.circle))),
-              Positioned(top: 10, right: 5, child: Container(width: 35, height: 35, decoration: const BoxDecoration(color: Color(0xFF7CB342), shape: BoxShape.circle))),
-              Positioned(bottom: 10, left: 0, child: Container(width: 30, height: 30, decoration: const BoxDecoration(color: Color(0xFF689F38), shape: BoxShape.circle))),
+              Container(
+                width: 80,
+                height: 80,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF8BC34A),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              Positioned(
+                top: 0,
+                left: 5,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF9CCC65),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 10,
+                right: 5,
+                child: Container(
+                  width: 35,
+                  height: 35,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF7CB342),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 10,
+                left: 0,
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF689F38),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
             ],
           ),
           // Trunk

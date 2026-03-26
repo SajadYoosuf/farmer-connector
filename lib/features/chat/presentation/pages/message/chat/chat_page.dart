@@ -110,27 +110,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ],
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 20),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Color.fromRGBO(155, 235, 91, 1),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Color.fromRGBO(92, 92, 92, 0.1)),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.call, color: Colors.white, size: 16),
-                SizedBox(width: 5),
-                Text(
-                  "Call",
-                  style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
-                ),
-              ],
-            ),
-          ),
-        ],
+        actions: const [],
       ),
       body: Column(
         children: [
@@ -161,7 +141,7 @@ class _ChatPageState extends State<ChatPage> {
                           alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                           child: Container(
                             margin: const EdgeInsets.symmetric(vertical: 5),
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // Reduced vertical padding from 12 to 10
                             constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
                             decoration: BoxDecoration(
                               color: isMe ? const Color.fromRGBO(155, 235, 91, 1) : Colors.white,
@@ -198,18 +178,7 @@ class _ChatPageState extends State<ChatPage> {
             color: Colors.white,
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Color.fromRGBO(241, 245, 249, 1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.camera_alt,
-                    color: Color.fromRGBO(76, 108, 154, 1),
-                  ),
-                ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 15),
                 // TEXT FIELD
                 Expanded(
                   child: TextField(

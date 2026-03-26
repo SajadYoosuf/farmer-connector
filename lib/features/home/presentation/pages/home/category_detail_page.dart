@@ -101,19 +101,26 @@ class CategoryDetailPage extends StatelessWidget {
                             Positioned(
                               top: 8,
                               right: 8,
-                              child: InkWell(
-                                onTap: () {
-                                  Provider.of<CartProvider>(context, listen: false).addItem(product);
-                                  showSuccessPopup(context, product.name, product.imageUrl);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xff0F5700),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(Icons.add, color: Colors.white, size: 20),
-                                ),
+                              child: Builder(
+                                builder: (context) {
+                                  final GlobalKey addButtonKey = GlobalKey();
+                                  return InkWell(
+                                    key: addButtonKey,
+                                    onTap: () {
+                                      Provider.of<CartProvider>(context, listen: false).addItem(product);
+                                      runAddToCartAnimation(context, product.imageUrl, addButtonKey);
+                                      showSuccessPopup(context, product.name, product.imageUrl);
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xff0F5700),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(Icons.add, color: Colors.white, size: 20),
+                                    ),
+                                  );
+                                }
                               ),
                             ),
                           ],

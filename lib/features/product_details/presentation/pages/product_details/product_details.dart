@@ -78,31 +78,38 @@ class _ProductDetailsState extends State<ProductDetails> {
                 const SizedBox(width: 10),
                 // ADD TO BASKET
                 Expanded(
-                  child: InkWell(
-                    onTap: () {
-                      final cart = Provider.of<CartProvider>(context, listen: false);
-                      for (int i = 0; i < quantity; i++) {
-                        cart.addItem(widget.product);
-                      }
-                      showSuccessPopup(context, widget.product.name, widget.product.imageUrl);
-                    },
-                    child: Container(
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: const Color.fromRGBO(15, 87, 0, 1),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: const Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.shopping_cart, color: Colors.white, size: 18),
-                            SizedBox(width: 6),
-                            Text('Add to Basket', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
-                          ],
+                  child: Builder(
+                    builder: (context) {
+                      final GlobalKey addButtonKey = GlobalKey();
+                      return InkWell(
+                        key: addButtonKey,
+                        onTap: () {
+                          final cart = Provider.of<CartProvider>(context, listen: false);
+                          for (int i = 0; i < quantity; i++) {
+                            cart.addItem(widget.product);
+                          }
+                          runAddToCartAnimation(context, widget.product.imageUrl, addButtonKey);
+                          showSuccessPopup(context, widget.product.name, widget.product.imageUrl);
+                        },
+                        child: Container(
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(15, 87, 0, 1),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: const Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.shopping_cart, color: Colors.white, size: 18),
+                                SizedBox(width: 6),
+                                Text('Add to Basket', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    }
                   ),
                 ),
               ],

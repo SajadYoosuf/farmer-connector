@@ -104,6 +104,77 @@ Widget ProductImage(String path, {BoxFit fit = BoxFit.cover, double? height, dou
   );
 }
 
+void runAddToCartAnimation(BuildContext context, String imageUrl, GlobalKey startKey) {
+  final OverlayState overlayState = Overlay.of(context);
+  final RenderBox? renderBox = startKey.currentContext?.findRenderObject() as RenderBox?;
+  if (renderBox == null) return;
+
+  final startPosition = renderBox.localToGlobal(Offset.zero);
+
+  late OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (context) {
+      return TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.0, end: 1.0),
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOutCirc,
+        onEnd: () {
+          entry.remove();
+        },
+        builder: (context, value, child) {
+          // Calculate parabolic path towards the Cart tab (approx 62.5% across the bottom bar)
+          double targetX = MediaQuery.of(context).size.width * 0.62;
+          double targetY = MediaQuery.of(context).size.height - 50;
+          
+          double x = startPosition.dx + (targetX - startPosition.dx) * value;
+          // Add arc effect
+          double y = startPosition.dy + (targetY - startPosition.dy) * value - (100 * (1 - (2 * value - 1).abs()));
+          
+          // Add a "pop" at the start with elastic feel
+          double scale = 1.0;
+          if (value < 0.3) {
+            scale = 1.0 + (Curves.elasticOut.transform(value * 3.33) * 0.6);
+          } else {
+            scale = 1.6 - ((value - 0.3) * 1.42 * 1.2); // Shrink to 0.4
+          }
+
+          return Positioned(
+            left: x,
+            top: y,
+            child: Opacity(
+              opacity: (1.0 - (value * value)).clamp(0.0, 1.0),
+              child: Transform.scale(
+                scale: scale.clamp(0.0, 2.0),
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xff0F5700).withOpacity(0.3),
+                        blurRadius: 15,
+                        spreadRadius: 2,
+                      )
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: ProductImage(imageUrl, fit: BoxFit.cover),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+
+  overlayState.insert(entry);
+}
+
 Widget BuildHeader(BuildContext context) {
   return Container(
     height: 180,
@@ -441,148 +512,152 @@ class TrendingSection extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: products.length,
               itemBuilder: (context, index) {
-                final product = products[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ProductDetails(product: product),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
-                            blurRadius: 15,
-                            offset: const Offset(0, 5),
+                  final product = products[index];
+                  final GlobalKey addButtonKey = GlobalKey();
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ProductDetails(product: product),
                           ),
-                        ],
-                        border: Border.all(color: Colors.grey.shade100),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            height: 90,
-                            width: 90,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              color: const Color(0xfff8f8f8),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(14),
-                              child: product.imageUrl.isNotEmpty
-                                  ? Hero(
-                                      tag:
-                                          product.id ??
-                                          'item-${product.name}-${index}',
-                                      child: ProductImage(
-                                        product.imageUrl,
+                          ],
+                          border: Border.all(color: Colors.grey.shade100),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              height: 90,
+                              width: 90,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                color: const Color(0xfff8f8f8),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: product.imageUrl.isNotEmpty
+                                    ? Hero(
+                                        tag:
+                                            product.id ??
+                                            'item-${product.name}-${index}',
+                                        child: ProductImage(
+                                          product.imageUrl,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : ProductImage(
+                                        '',
                                         fit: BoxFit.cover,
                                       ),
-                                    )
-                                  : ProductImage(
-                                      '',
-                                      fit: BoxFit.cover,
-                                    ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(
-                                          0xff9AF055,
-                                        ).withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: const Text(
-                                        "Best Seller",
-                                        style: TextStyle(
-                                          color: Color(0xff0F5700),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(
+                                            0xff9AF055,
+                                          ).withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: const Text(
+                                          "Best Seller",
+                                          style: TextStyle(
+                                            color: Color(0xff0F5700),
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    product.name,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  product.name,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
                                   ),
-                                ),
-                                Text(
-                                  "by ${product.farmerName}",
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
+                                  Text(
+                                    "by ${product.farmerName}",
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  '₹${product.price.toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    color: Color(0xff0F5700),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    '₹${product.price.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      color: Color(0xff0F5700),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              Provider.of<CartProvider>(
-                                context,
-                                listen: false,
-                              ).addItem(product);
-                              showSuccessPopup(context, product.name, product.imageUrl);
-                            },
-                            child: Container(
-                              height: 44,
-                              width: 44,
-                              decoration: const BoxDecoration(
-                                color: Color(0xff0F5700),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.add,
-                                color: Colors.white,
-                                size: 24,
+                                ],
                               ),
                             ),
-                          ),
-                        ],
+                            InkWell(
+                              key: addButtonKey,
+                              onTap: () {
+                                Provider.of<CartProvider>(
+                                  context,
+                                  listen: false,
+                                ).addItem(product);
+                                runAddToCartAnimation(context, product.imageUrl, addButtonKey);
+                                showSuccessPopup(context, product.name, product.imageUrl);
+                              },
+                              child: Container(
+                                height: 44,
+                                width: 44,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xff0F5700),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
+                  );
+
               },
             );
           },
