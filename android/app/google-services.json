@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "366012024248",
+    "project_id": "farmer-connector",
+    "storage_bucket": "farmer-connector.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:366012024248:android:7c1f7934ba7d222fb1bb4d",
+        "android_client_info": {
+          "package_name": "com.example.customer_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOITtm6vyqKweNYsyYmQNeC8Nyixtn7ro"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
