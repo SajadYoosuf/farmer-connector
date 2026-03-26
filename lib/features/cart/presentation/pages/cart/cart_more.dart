@@ -51,169 +51,158 @@ Widget CartHeader(context) {
   );
 }
 ///--------------------------------------------cart items--------------------------------------------
-class CartItem extends StatefulWidget {
-  final String name;
-  final String subtitle;
-  final String image;
-  final double price;
-  final int quantity;
-  const CartItem({super.key, required this.name, required this.subtitle, required this.image, required this.price, required this.quantity});
-
-  @override
-  State<CartItem> createState() => _CartItemState();
-}
-
-class _CartItemState extends State<CartItem> {
-  late int qty;
-
-  @override
-  void initState() {
-    super.initState();
-    qty = widget.quantity; //take value from parent
-  }
-  void increment(){
-    setState(() {
-      qty++;
-    });
-  }
-  void decrement() {
-    if (qty > 1) {
-      setState(() {
-        qty--;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    double total = qty * widget.price;
-    return  Container(
-      margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Color.fromRGBO(255, 255, 255, 1),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 8,
-            color: Colors.black12,
-            offset: Offset(0, 4),
-          )
-        ],
-      ),
-      child: Row(
-        children: [
-          //image
-          Container(
-            width: 90,
-            height: 120,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),image: DecorationImage(
-                image: AssetImage(widget.image), fit: BoxFit.cover),
-            ),
+Widget CartItemWidget({
+  required CartItem item,
+  required VoidCallback onIncrement,
+  required VoidCallback onDecrement,
+  required VoidCallback onRemove,
+}) {
+  double total = item.quantity * item.product.price;
+  return Container(
+    margin: const EdgeInsets.all(12),
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(10),
+      color: const Color.fromRGBO(255, 255, 255, 1),
+      boxShadow: const [
+        BoxShadow(
+          blurRadius: 8,
+          color: Colors.black12,
+          offset: Offset(0, 4),
+        )
+      ],
+    ),
+    child: Row(
+      children: [
+        //image
+        Container(
+          width: 90,
+          height: 120,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.grey[200],
           ),
-          SizedBox(
-            width: 12,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: item.product.imageUrl.isNotEmpty
+                ? Image.network(item.product.imageUrl, fit: BoxFit.cover)
+                : Image.asset("assets/images/apple.png", fit: BoxFit.cover),
           ),
-          //Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(widget.name, style: TextStyle(
+        ),
+        const SizedBox(width: 12),
+        //Details
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.product.name,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: Color.fromRGBO(0, 0, 0, 1),
-                ),),
-                Text(widget.subtitle, style: TextStyle(
+                ),
+              ),
+              Text(
+                item.product.farmerName,
+                style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Color.fromRGBO(138, 138, 138, 1),
-                ),),
-                SizedBox(height: 5,),
-                Text(
-                  "\$${widget.price}",
-                  style: TextStyle(
-                      color: Color.fromRGBO(101, 255, 84, 1), fontWeight: FontWeight.w700, fontSize: 16),
                 ),
-                const SizedBox(height: 8),
-                //Quantity Selector
-                Container(
-                  height: 55,
-                  width: 130,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(26),
-                    color: Color.fromRGBO(246, 248, 246, 1),
-                    border: Border.all(
-                      width: 1.0,
-                      color: Color.fromRGBO(0, 0, 0, 0.1)
-                    )
-                  ),
-                  child: Row(
-                    children: [
-                      SizedBox(width: 3,),
-                      Container(
-                        height: 45,
-                        width: 45,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color.fromRGBO(255, 255, 255, 1),
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 4,
-                              color: Colors.black12,
-                              offset: Offset(0, 4),
-                              spreadRadius: 0,
-                            )
-                          ],
-                        ),
-                        child: IconButton(
-                          onPressed: decrement,
-                          icon: Icon(Icons.remove, color: Color.fromRGBO(0, 0, 0, 1)),
-                        ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                "\$${item.product.price.toStringAsFixed(2)}",
+                style: const TextStyle(
+                  color: Color.fromRGBO(101, 255, 84, 1),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 8),
+              //Quantity Selector
+              Container(
+                height: 55,
+                width: 130,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(26),
+                  color: const Color.fromRGBO(246, 248, 246, 1),
+                  border: Border.all(width: 1.0, color: const Color.fromRGBO(0, 0, 0, 0.1)),
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 3),
+                    Container(
+                      height: 45,
+                      width: 45,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color.fromRGBO(255, 255, 255, 1),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 4,
+                            color: Colors.black12,
+                            offset: Offset(0, 4),
+                            spreadRadius: 0,
+                          )
+                        ],
                       ),
-                      SizedBox(width: 5,),
-                      Text(qty.toString(), style: TextStyle(
+                      child: IconButton(
+                        onPressed: onDecrement,
+                        icon: const Icon(Icons.remove, color: Color.fromRGBO(0, 0, 0, 1)),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      item.quantity.toString(),
+                      style: const TextStyle(
                         color: Color.fromRGBO(0, 0, 0, 1),
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                      ),),SizedBox(width: 8,),
-                      Container(
-                        height: 45,
-                        width: 45,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color.fromRGBO(155, 234, 94, 1),
-                        ),
-                        child: IconButton(
-                          onPressed: increment,
-                          icon: Icon(Icons.add, color: Colors.white),
-                        ),
                       ),
-                    ],
-                  ),
-
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      height: 45,
+                      width: 45,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color.fromRGBO(155, 234, 94, 1),
+                      ),
+                      child: IconButton(
+                        onPressed: onIncrement,
+                        icon: const Icon(Icons.add, color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          //Right side
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Icon(Icons.delete, color: Color.fromRGBO(0, 0, 0, 0.63),),
-              SizedBox(height: 40,),
-              Text("\$${total.toStringAsFixed(1)}", style: TextStyle(
+        ),
+        //Right side
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            IconButton(
+              onPressed: onRemove,
+              icon: const Icon(Icons.delete, color: Color.fromRGBO(0, 0, 0, 0.63)),
+            ),
+            const SizedBox(height: 40),
+            Text(
+              "\$${total.toStringAsFixed(1)}",
+              style: const TextStyle(
                 color: Color.fromRGBO(15, 87, 0, 1),
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-              ),),
-            ],
-          )
-        ],
-      ),
-    );
-  }
+              ),
+            ),
+          ],
+        )
+      ],
+    ),
+  );
 }
 
 ///----------------------------------summary card -----------------------------------------------
@@ -224,12 +213,14 @@ class SummaryCard extends StatefulWidget {
   final double subtotal;
   final double deliveryFee;
   final double serviceFee;
+  final double total;
 
   const SummaryCard({
     super.key,
     required this.subtotal,
     required this.deliveryFee,
     required this.serviceFee,
+    required this.total,
   });
 
   @override
@@ -305,7 +296,7 @@ class _SummaryCardState extends State<SummaryCard> {
 
               const Divider(height: 24, color: Color.fromRGBO(0, 0, 0, 0.14,), thickness: 1.0,),
 
-              buildRow("Total", total, isTotal: true,),
+              buildRow("Total", widget.total, isTotal: true,),
             ],
           ),
         ),
