@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:geocoding/geocoding.dart';
+import 'package:customer_app/utils/image_encoding.dart';
 
 class FarmerVerification extends StatefulWidget {
   const FarmerVerification({super.key});
@@ -90,7 +91,12 @@ class _FarmerVerificationState extends State<FarmerVerification> {
   }
 
   Future<void> _pickImage(bool isAadhar) async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 75,
+    );
     if (image != null) {
       setState(() {
         if (isAadhar) {
@@ -117,15 +123,15 @@ class _FarmerVerificationState extends State<FarmerVerification> {
       final user = auth.currentUser;
       
       if (user != null) {
-        // Here you would upload files to Firebase Storage and get URLs.
-        // Update user status to 'pending' so next time they see the status screen
+        final aadharDataUri = await imagePathToDataUri(_aadharImage!.path);
+        final farmerIdDataUri = await imagePathToDataUri(_farmerIDImage!.path);
         await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-          'status': 'pending', 
+          'status': 'pending',
           'verificationStatus': 'submitted',
           'landLocation': _locationController.text,
           'verificationSubmittedAt': FieldValue.serverTimestamp(),
-          'aadharPath': _aadharImage!.path,
-          'farmerIDPath': _farmerIDImage!.path,
+          'aadharPath': aadharDataUri,
+          'farmerIDPath': farmerIdDataUri,
         });
         
         if (mounted) {

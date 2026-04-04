@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customer_app/widgets/common_widget.dart';
+import 'package:customer_app/utils/image_encoding.dart';
 
 class FarmerDetailPage extends StatelessWidget {
   final Map<String, dynamic> farmerData;
@@ -472,12 +473,20 @@ class FarmerDetailPage extends StatelessWidget {
     }
   }
 
+  bool _canShowDoc(String? path) {
+    if (path == null || path.isEmpty) return false;
+    if (path.startsWith('data:image')) {
+      return tryDecodeDataImageBytes(path) != null;
+    }
+    return File(path.replaceFirst('file://', '')).existsSync();
+  }
+
   Widget _buildDocCard(String label, String? path, BuildContext context) {
     return Expanded(
       child: InkWell(
         onTap: () {
-          if (path != null && File(path).existsSync()) {
-            _showImageDialog(context, path, label);
+          if (_canShowDoc(path)) {
+            _showImageDialog(context, path!, label);
           }
         },
         child: Container(
@@ -490,10 +499,10 @@ class FarmerDetailPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (path != null && File(path).existsSync())
+              if (_canShowDoc(path))
                 ClipRRect(
                   borderRadius: BorderRadius.circular(14),
-                  child: Image.file(File(path), fit: BoxFit.cover, height: 80, width: double.infinity),
+                  child: _docPreview(path!, height: 80),
                 )
               else
                 const Icon(Icons.image_not_supported_outlined, color: Colors.grey, size: 30),
@@ -506,7 +515,16 @@ class FarmerDetailPage extends StatelessWidget {
     );
   }
 
-  void _showImageDialog(BuildContext context, String path, String title) {
+  Widget _docPreview(String source, {double? height}) {
+    final embedded = tryDecodeDataImageBytes(source);
+    if (embedded != null) {
+      return Image.memory(embedded, fit: BoxFit.cover, height: height, width: double.infinity);
+    }
+    final clean = source.replaceFirst('file://', '');
+    return Image.file(File(clean), fit: BoxFit.cover, height: height, width: double.infinity);
+  }
+
+  void _showImageDialog(BuildContext context, String source, String title) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -523,7 +541,7 @@ class FarmerDetailPage extends StatelessWidget {
             ),
             ClipRRect(
               borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
-              child: Image.file(File(path)),
+              child: _docPreview(source),
             ),
           ],
         ),

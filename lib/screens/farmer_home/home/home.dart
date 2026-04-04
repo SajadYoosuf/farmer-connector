@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:customer_app/screens/farmer_home/home/all_products.dart';
 import 'package:customer_app/screens/farmer_home/home/shipments.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:customer_app/providers/auth_provider.dart';
 import 'package:customer_app/screens/farmer_home/add_product/add_product.dart';
+import 'package:customer_app/screens/home/home/common_widgets.dart';
 import 'package:intl/intl.dart';
 
 class FarmerHome extends StatefulWidget {
@@ -380,9 +380,7 @@ class _FarmerHomeState extends State<FarmerHome> {
                     width: double.infinity,
                     color: Colors.grey.shade100,
                     child: image.isNotEmpty
-                        ? (image.startsWith('http')
-                              ? Image.network(image, fit: BoxFit.cover)
-                              : Image.file(File(image), fit: BoxFit.cover))
+                        ? ProductImage(image, fit: BoxFit.cover)
                         : const Icon(Icons.eco, color: Colors.green, size: 40),
                   ),
                 ),

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:customer_app/providers/auth_provider.dart';
+import 'package:customer_app/utils/image_encoding.dart';
 
 class FarmerAddProduct extends StatefulWidget {
   final Map<String, dynamic>? productData;
@@ -44,6 +45,9 @@ class _FarmerAddProductState extends State<FarmerAddProduct> {
   Future<void> _pickImage() async {
     final XFile? selected = await _picker.pickImage(
       source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 75,
     );
     if (selected != null) {
       setState(() {
@@ -68,7 +72,10 @@ class _FarmerAddProductState extends State<FarmerAddProduct> {
 
     setState(() => _isLoading = true);
     final user = context.read<AuthProvider>().currentUser;
-    if (user == null) return;
+    if (user == null) {
+      if (mounted) setState(() => _isLoading = false);
+      return;
+    }
 
     try {
       final Map<String, dynamic> data = {
@@ -84,7 +91,7 @@ class _FarmerAddProductState extends State<FarmerAddProduct> {
       };
 
       if (_image != null) {
-        data['imageUrl'] = _image!.path;
+        data['imageUrl'] = await imagePathToDataUri(_image!.path);
       }
 
       if (widget.productId != null) {
@@ -120,6 +127,17 @@ class _FarmerAddProductState extends State<FarmerAddProduct> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Widget _previewStoredImage(String url) {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return Image.network(url, fit: BoxFit.contain);
+    }
+    final bytes = tryDecodeDataImageBytes(url);
+    if (bytes != null) {
+      return Image.memory(bytes, fit: BoxFit.contain);
+    }
+    return Image.file(File(url), fit: BoxFit.contain);
   }
 
   @override
@@ -177,15 +195,9 @@ class _FarmerAddProductState extends State<FarmerAddProduct> {
                             : (widget.productData?['imageUrl'] != null
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(16),
-                                    child: widget.productData!['imageUrl']
-                                            .startsWith('http')
-                                        ? Image.network(
-                                            widget.productData!['imageUrl'],
-                                            fit: BoxFit.contain)
-                                        : Image.file(
-                                            File(
-                                                widget.productData!['imageUrl']),
-                                            fit: BoxFit.contain),
+                                    child: _previewStoredImage(
+                                      widget.productData!['imageUrl'] as String,
+                                    ),
                                   )
                                 : Column(
                                     mainAxisAlignment: MainAxisAlignment.center,

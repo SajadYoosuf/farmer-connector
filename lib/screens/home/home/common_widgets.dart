@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:customer_app/screens/home/home/category_detail_page.dart';
+import 'package:customer_app/utils/image_encoding.dart';
 import 'package:customer_app/screens/product_details/product_details/product_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -87,20 +88,34 @@ void showSuccessPopup(BuildContext context, String productName, String imageUrl)
 
 Widget ProductImage(String path, {BoxFit fit = BoxFit.cover, double? height, double? width}) {
   if (path.isEmpty) {
-    return Image.asset('assets/images/apple.png', fit: fit, height: height, width: width);
+    return Icon(Icons.image_not_supported_outlined, size: (height ?? width ?? 48) * 0.5);
   }
-  if (path.startsWith('http')) {
-    return Image.network(path, fit: fit, height: height, width: width,
-      errorBuilder: (context, error, stackTrace) => Image.asset('assets/images/apple.png', fit: fit),
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return Image.network(
+      path,
+      fit: fit,
+      height: height,
+      width: width,
+      errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error)),
     );
   }
-  if (path.startsWith('assets/')) {
-    return Image.asset(path, fit: fit, height: height, width: width);
+  final embedded = tryDecodeDataImageBytes(path);
+  if (embedded != null) {
+    return Image.memory(
+      embedded,
+      fit: fit,
+      height: height,
+      width: width,
+      errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error)),
+    );
   }
-  // Handle file path (with or without file:// prefix)
-  String cleanPath = path.replaceFirst('file://', '');
-  return Image.file(File(cleanPath), fit: fit, height: height, width: width,
-    errorBuilder: (context, error, stackTrace) => Image.asset('assets/images/apple.png', fit: fit),
+  final cleanPath = path.replaceFirst('file://', '');
+  return Image.file(
+    File(cleanPath),
+    fit: fit,
+    height: height,
+    width: width,
+    errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error)),
   );
 }
 

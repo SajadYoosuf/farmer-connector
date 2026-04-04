@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:customer_app/utils/image_encoding.dart';
 import 'package:customer_app/screens/admin_dashboard/home/home_admin_more.dart';
 import 'package:customer_app/screens/admin_farmers/farmer/farmer_detail.dart';
 import 'package:flutter/material.dart';
@@ -533,28 +534,43 @@ class _AdminDashboardState extends State<AdminDashboard> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.grey[300]!),
             ),
-            child: (path != null && File(path).existsSync())
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.file(File(path), fit: BoxFit.cover),
-                  )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(
-                        Icons.image_not_supported_outlined,
-                        color: Colors.grey,
-                        size: 24,
-                      ),
-                      Text(
-                        "No Image",
-                        style: TextStyle(fontSize: 10, color: Colors.grey),
-                      ),
-                    ],
-                  ),
+            child: _adminDocThumbContent(path),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _adminDocThumbContent(String? path) {
+    if (path != null && path.startsWith('data:image')) {
+      final bytes = tryDecodeDataImageBytes(path);
+      if (bytes != null) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.memory(bytes, fit: BoxFit.cover),
+        );
+      }
+    }
+    final filePath = path?.replaceFirst('file://', '') ?? '';
+    if (filePath.isNotEmpty && File(filePath).existsSync()) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.file(File(filePath), fit: BoxFit.cover),
+      );
+    }
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        Icon(
+          Icons.image_not_supported_outlined,
+          color: Colors.grey,
+          size: 24,
+        ),
+        Text(
+          "No Image",
+          style: TextStyle(fontSize: 10, color: Colors.grey),
+        ),
+      ],
     );
   }
 

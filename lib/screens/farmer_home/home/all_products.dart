@@ -1,6 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:customer_app/screens/home/home/common_widgets.dart';
 import 'package:customer_app/screens/farmer_home/add_product/add_product.dart';
 
 class FarmerAllProducts extends StatefulWidget {
@@ -95,9 +95,9 @@ class _FarmerAllProductsState extends State<FarmerAllProducts> with SingleTicker
             child: Container(
               width: 80, height: 80,
               color: Colors.grey.shade100,
-              child: image.isNotEmpty 
-                ? (image.startsWith('http') ? Image.network(image, fit: BoxFit.cover) : Image.file(File(image), fit: BoxFit.cover))
-                : const Icon(Icons.eco, color: Colors.green),
+              child: image.isNotEmpty
+                  ? ProductImage(image, fit: BoxFit.cover)
+                  : const Icon(Icons.eco, color: Colors.green),
             ),
           ),
           const SizedBox(width: 16),

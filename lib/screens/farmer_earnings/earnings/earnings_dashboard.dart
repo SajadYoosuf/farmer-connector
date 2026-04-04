@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:customer_app/providers/auth_provider.dart';
+import 'package:customer_app/screens/home/home/common_widgets.dart';
 
 class EarningsDashboard extends StatefulWidget {
   const EarningsDashboard({super.key});
@@ -340,12 +341,7 @@ class _EarningsDashboardState extends State<EarningsDashboard> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: imageUrl != null && imageUrl.isNotEmpty
-                  ? Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (c, e, s) =>
-                          const Icon(Icons.eco, color: Colors.green),
-                    )
+                  ? ProductImage(imageUrl, fit: BoxFit.cover)
                   : const Icon(Icons.eco, color: Colors.green),
             ),
           ),
