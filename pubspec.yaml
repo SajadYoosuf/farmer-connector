@@ -47,6 +47,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  msix: ^3.16.13
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -98,3 +99,15 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# MSIX packaging (dart run msix:create after flutter build windows). Declares Store/sandbox capabilities.
+# For loose .exe builds, see windows/runner/runner.exe.manifest for Win32 settings (long paths, UTF-8).
+msix_config:
+  display_name: Customer App
+  publisher_display_name: com.example
+  identity_name: com.example.customer_app
+  msix_version: 1.0.0.0
+  # Optional: logo_path: assets/images/your_400x400.png
+  # internetClient: Firebase, Firestore, APIs. privateNetworkClientServer: LAN / dev servers. location: Geolocator.
+  # picturesLibrary: Pictures folder access when package is sandboxed.
+  capabilities: internetClient, privateNetworkClientServer, location, picturesLibrary
